@@ -3,8 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: 'export',
   trailingSlash: true,
-  basePath: '/interactive-math-blog',
-  assetPrefix: '/interactive-math-blog/',
+  basePath: '/interactive-blog',
+  assetPrefix: '/interactive-blog/',
   images: {
     unoptimized: true
   },
