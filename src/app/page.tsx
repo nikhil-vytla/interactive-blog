@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Home() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
@@ -16,12 +18,12 @@ export default function Home() {
             <p className="mb-4 text-muted">
               Ready to explore interactive mathematical concepts?
             </p>
-            <a 
+            <Link 
               href="/demo" 
               className="inline-block px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium"
             >
               Try Interactive Demos →
-            </a>
+            </Link>
           </div>
         </section>
 
