@@ -15,8 +15,8 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Interactive Math Blog",
-  description: "Interactive mathematical and code blogging platform",
+  title: "Nik's Interactive Blog",
+  description: "A little interactive math + coding blog experiment",
 };
 
 export default function RootLayout({
