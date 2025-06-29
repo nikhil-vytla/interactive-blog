@@ -1,5 +1,6 @@
 'use client';
 
+import PageLayout from '@/components/PageLayout';
 import PlotlyCodeEditor from '@/components/PlotlyCodeEditor';
 import { DisplayMath, InlineMath } from '@/components/MathRenderer';
 
@@ -180,16 +181,11 @@ print(f"Max: {np.max(data):.3f}")`;
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12">
-      <header className="mb-12">
-        <h1 className="text-4xl font-bold mb-4">Interactive Demos</h1>
-        <p className="text-muted text-lg leading-relaxed">
-          Explore mathematical concepts through interactive Python code. 
-          Edit the highlighted sections and run the code to see immediate results.
-        </p>
-      </header>
-
-      <main className="space-y-16">
+    <PageLayout
+      title="Interactive Demos"
+      description="Explore mathematical concepts through interactive Python code. Edit the highlighted sections and run the code to see immediate results."
+    >
+      <div className="space-y-16">
         <section>
           <h2 className="text-3xl font-semibold mb-6">Trigonometric Functions</h2>
           
@@ -287,7 +283,7 @@ print(f"Max: {np.max(data):.3f}")`;
             </div>
           </div>
         </section>
-      </main>
-    </div>
+      </div>
+    </PageLayout>
   );
 }

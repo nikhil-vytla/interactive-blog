@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import PageLayout from '@/components/PageLayout';
 import { InlineMath, DisplayMath } from '@/components/MathRenderer';
 import PlotlyCodeEditor from '@/components/PlotlyCodeEditor';
-import Link from 'next/link';
 
 export default function PValuesPost() {
   const [sampleSize, setSampleSize] = useState(30);
@@ -159,18 +159,10 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
 
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <header className="mb-12">
-        <Link href="/" className="text-accent hover:underline mb-4 inline-block">
-          ← Back to Home
-        </Link>
-        <h1 className="text-4xl font-bold mb-4">Understanding P-Values</h1>
-        <p className="text-muted text-lg leading-relaxed">
-          An exploration of p-values through interactive examples and visualizations, 
-          with a focus on common interpretations and misconceptions.
-        </p>
-      </header>
-
+    <PageLayout
+      title="Understanding P-Values"
+      description="An exploration of p-values through interactive examples and visualizations, with a focus on common interpretations and misconceptions."
+    >
       <article className="prose max-w-none">
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-6">What is a P-Value?</h2>
@@ -370,6 +362,6 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
           </div>
         </section>
       </article>
-    </div>
+    </PageLayout>
   );
 } 
