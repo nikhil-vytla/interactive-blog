@@ -7,6 +7,7 @@ import FeatureCard from '@/components/FeatureCard';
 import Tag from '@/components/Tag';
 import { demos, features, callToAction } from '@/data/homepage';
 import { articleRegistry, getAllTags } from '@/content';
+import { InlineMath } from '@/components/MathRenderer';
 
 export default function Home() {
   return (
@@ -22,7 +23,8 @@ export default function Home() {
             Welcome to my blog! 👋
           </h1>
           <p className="text-xl text-muted max-w-3xl mx-auto leading-relaxed">
-            This is a little (personal) experiment in interactive learning. It's a work in progress, so please bear with me.
+            This is a little (personal) experiment in interactive learning. It&apos;s an evergreen work in progress, so please bear with me. 
+            My guiding principles for this blog are as follows: <InlineMath>{` \\text{interactive visualization}`}</InlineMath>, <InlineMath>{` \\text{reproducible learning}`}</InlineMath>, and <InlineMath>{` \\text{accessible scientific communication}`}</InlineMath>.
           </p>
         </section>
 
