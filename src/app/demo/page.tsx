@@ -67,7 +67,7 @@ data = np.random.normal(mean, std_dev, sample_size)
 fig = make_subplots(
     rows=1, cols=2, 
     subplot_titles=(f'Normal Distribution (n={sample_size}, μ={mean}, σ={std_dev})', 'Q-Q Plot'),
-    horizontal_spacing=0.1
+    horizontal_spacing=0.15
 )
 
 # Histogram

@@ -4,6 +4,8 @@ import { useState } from 'react';
 import PageLayout from '@/components/PageLayout';
 import { InlineMath, DisplayMath } from '@/components/MathRenderer';
 import PlotlyCodeEditor from '@/components/PlotlyCodeEditor';
+import { AlertVariants } from '@/components/Alert';
+import { getParametersEditableRanges } from '@/utils/editableRanges';
 
 export default function PValuesPost() {
   const [sampleSize, setSampleSize] = useState(30);
@@ -140,38 +142,25 @@ fig.update_layout(
 fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')
 fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
 
-  const getEditableRanges = () => {
-    // Allow editing of the parameters section
-    const parametersStart = pythonCode.indexOf('# Parameters');
-    const parametersEnd = pythonCode.indexOf('# Generate sample data');
-    
-    if (parametersStart === -1 || parametersEnd === -1) return [];
-    
-    // Find the actual parameter values (after the comment line)
-    const parametersContentStart = pythonCode.indexOf('\n', parametersStart) + 1;
-    
-    return [{ 
-      from: parametersContentStart, 
-      to: parametersEnd 
-    }];
-  };
+  // Calculate editable ranges using utility
+  const getEditableRanges = () => getParametersEditableRanges(pythonCode);
 
 
 
   return (
     <PageLayout
-      title="Understanding P-Values"
+      title="Understanding p-values"
       description="An exploration of p-values through interactive examples and visualizations, with a focus on common interpretations and misconceptions."
     >
       <article className="prose max-w-none">
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-6">What is a P-Value?</h2>
-          <div className="bg-blue-50 border-l-4 border-blue-400 p-6 mb-6">
-            <p className="text-lg">
-              A p-value is the probability of observing your data (or something more extreme) 
+          <h2 className="text-2xl font-semibold mb-6 text-foreground">What is a p-value?</h2>
+          <AlertVariants.Definition title="p-value">
+            <p>
+              The probability of observing your data (or something more extreme) 
               if the null hypothesis were true.
             </p>
-          </div>
+          </AlertVariants.Definition>
           
           <p className="mb-4">
             More formally, if we have a null hypothesis <InlineMath>H_0</InlineMath> and we observe 
@@ -188,12 +177,12 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-6">Interactive P-Value Simulation</h2>
+          <h2 className="text-2xl font-semibold mb-6 text-foreground">Interactive p-value simulation</h2>
           
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Sample Size</label>
+                <label className="block text-sm font-medium mb-2">Sample size</label>
                 <input
                   type="range"
                   min="10"
@@ -206,7 +195,7 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-2">Null Hypothesis Mean</label>
+                <label className="block text-sm font-medium mb-2">Null hypothesis mean</label>
                 <input
                   type="range"
                   min="-2"
@@ -222,7 +211,7 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">True Population Mean</label>
+                <label className="block text-sm font-medium mb-2">True population mean</label>
                 <input
                   type="range"
                   min="-2"
@@ -236,7 +225,7 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-2">Significance Level (α)</label>
+                <label className="block text-sm font-medium mb-2">Significance level (<InlineMath>{`\\alpha`}</InlineMath>)</label>
                 <input
                   type="range"
                   min="0.01"
@@ -259,51 +248,47 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
           </button>
           
           {simulationResults && (
-            <div className="bg-gray-50 border rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Simulation Results</h3>
+            <AlertVariants.Results>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <p><strong>Sample Mean:</strong> {simulationResults.sampleMean.toFixed(3)}</p>
-                  <p><strong>T-Statistic:</strong> {simulationResults.tStatistic.toFixed(3)}</p>
+                  <p><strong>Sample mean:</strong> {simulationResults.sampleMean.toFixed(3)}</p>
+                  <p><strong>T-statistic:</strong> {simulationResults.tStatistic.toFixed(3)}</p>
                 </div>
                 <div>
-                  <p><strong>P-Value:</strong> <span className={simulationResults.significant ? 'text-red-600 font-bold' : 'text-green-600'}>{simulationResults.pValue.toFixed(3)}</span></p>
+                  <p><strong>p-value:</strong> <span className={simulationResults.significant ? 'text-red-600 font-bold' : 'text-green-600'}>{simulationResults.pValue.toFixed(3)}</span></p>
                   <p><strong>Significant:</strong> <span className={simulationResults.significant ? 'text-red-600' : 'text-green-600'}>{simulationResults.significant ? 'Yes' : 'No'}</span></p>
                 </div>
               </div>
-            </div>
+            </AlertVariants.Results>
           )}
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-6">Common Misconceptions</h2>
+          <h2 className="text-2xl font-semibold mb-6 text-foreground">Common Misconceptions</h2>
           
           <div className="space-y-6">
-            <div className="bg-red-50 border-l-4 border-red-400 p-6">
-              <h3 className="font-semibold text-red-800 mb-2">❌ Wrong: P-value is the probability that the null hypothesis is true</h3>
-              <p className="text-red-700">
+            <AlertVariants.Wrong title="p-value is the probability that the null hypothesis is true">
+              <p>
                 The p-value is calculated assuming the null hypothesis IS true. It cannot tell us the probability that it&apos;s true.
               </p>
-            </div>
+            </AlertVariants.Wrong>
             
-            <div className="bg-red-50 border-l-4 border-red-400 p-6">
-              <h3 className="font-semibold text-red-800 mb-2">❌ Wrong: A smaller p-value means a larger effect</h3>
-              <p className="text-red-700">
-                P-values depend on both effect size AND sample size. A tiny effect with huge sample size can have a very small p-value.
+            <AlertVariants.Wrong title="A smaller p-value means a larger effect">
+              <p>
+                p-values depend on both effect size AND sample size. A tiny effect with huge sample size can have a very small p-value.
               </p>
-            </div>
+            </AlertVariants.Wrong>
             
-            <div className="bg-green-50 border-l-4 border-green-400 p-6">
-              <h3 className="font-semibold text-green-800 mb-2">✅ Correct: P-value measures evidence against the null hypothesis</h3>
-              <p className="text-green-700">
+            <AlertVariants.Correct title="p-value measures evidence against the null hypothesis">
+              <p>
                 Smaller p-values provide stronger evidence that our data is inconsistent with the null hypothesis.
               </p>
-            </div>
+            </AlertVariants.Correct>
           </div>
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-6">Try It Yourself: Python Implementation</h2>
+          <h2 className="text-2xl font-semibold mb-6 text-foreground">Try It Yourself: Python Implementation</h2>
           <p className="mb-4">
             Here&apos;s a complete Python implementation of the simulation above. 
             Modify the parameters and see how they affect the p-value:
@@ -317,22 +302,22 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-6">Mathematical Foundation</h2>
+          <h2 className="text-2xl font-semibold mb-6 text-foreground">Mathematical Foundation</h2>
           
           <p className="mb-4">
             For a one-sample t-test, we calculate the t-statistic as:
           </p>
           
           <DisplayMath>
-            t = (sample\_mean - null\_mean) / (std / sqrt(n))
+            {`t = \\frac{(sample\\_mean - null\\_mean)}{(std / sqrt(n))}`}
           </DisplayMath>
           
           <p className="my-4">Where:</p>
           <ul className="list-disc list-inside mb-4 space-y-1">
-            <li><strong>sample_mean</strong> is the sample mean</li>
-            <li><strong>null_mean</strong> is the hypothesized population mean</li>
-            <li><strong>std</strong> is the sample standard deviation</li>
-            <li><strong>n</strong> is the sample size</li>
+            <li><strong><InlineMath>{`sample\\_mean`}</InlineMath></strong> is the sample mean</li>
+            <li><strong><InlineMath>{`null\\_mean`}</InlineMath></strong> is the hypothesized population mean</li>
+            <li><strong><InlineMath>{`std`}</InlineMath></strong> is the sample standard deviation</li>
+            <li><strong><InlineMath>{`n`}</InlineMath></strong> is the sample size</li>
           </ul>
           
           <p className="mb-4">
@@ -349,17 +334,17 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-6">Key Takeaways</h2>
+          <h2 className="text-2xl font-semibold mb-6 text-foreground">Key Takeaways</h2>
           
-          <div className="bg-blue-50 border rounded-lg p-6">
+          <AlertVariants.Takeaways>
             <ul className="space-y-2">
-              <li>✅ P-values measure evidence against the null hypothesis</li>
-              <li>✅ They depend on both effect size and sample size</li>
-              <li>✅ Statistical significance ≠ practical significance</li>
-              <li>✅ Always interpret p-values in context</li>
-              <li>✅ Consider complementary measures like confidence intervals</li>
+              <li>→ p-values measure evidence against the null hypothesis</li>
+              <li>→ They depend on both effect size and sample size</li>
+              <li>→ Statistical significance ≠ practical significance</li>
+              <li>→ Always interpret p-values in context</li>
+              <li>→ Consider complementary measures like confidence intervals</li>
             </ul>
-          </div>
+          </AlertVariants.Takeaways>
         </section>
       </article>
     </PageLayout>

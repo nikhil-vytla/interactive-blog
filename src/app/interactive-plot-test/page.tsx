@@ -2,6 +2,7 @@
 
 import PageLayout from '@/components/PageLayout';
 import PlotlyCodeEditor from '@/components/PlotlyCodeEditor';
+import { getExplicitEditableRanges } from '@/utils/editableRanges';
 
 export default function InteractivePlotTestPage() {
 
@@ -51,20 +52,8 @@ print("Interactive plot created!")
 print(f"Data points: {len(x)}")
 print(f"Y range: [{min(y):.2f}, {max(y):.2f}]")`;
 
-  // Calculate editable ranges
-  const getEditableRanges = () => {
-    const startMarker = '# === EDITABLE REGION START ===';
-    const endMarker = '# === EDITABLE REGION END ===';
-    const startIndex = testCode.indexOf(startMarker);
-    const endIndex = testCode.indexOf(endMarker);
-    
-    if (startIndex === -1 || endIndex === -1) return [];
-    
-    const contentStart = testCode.indexOf('\n', startIndex) + 1;
-    const contentEnd = endIndex;
-    
-    return [{ from: contentStart, to: contentEnd }];
-  };
+  // Calculate editable ranges using utility
+  const getEditableRanges = () => getExplicitEditableRanges(testCode);
 
 
 

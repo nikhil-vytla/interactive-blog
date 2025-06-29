@@ -1,82 +1,104 @@
 import Link from 'next/link';
+import PageLayout from '@/components/PageLayout';
+import Button from '@/components/Button';
+import ArticleCard from '@/components/ArticleCard';
+import DemoCard from '@/components/DemoCard';
+import FeatureCard from '@/components/FeatureCard';
+import { articles, demos, features, callToAction } from '@/data/homepage';
 
 export default function Home() {
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <header className="mb-12">
-        <h1 className="text-4xl font-bold mb-4">Nik&apos;s Interactive Blog</h1>
-        <p className="text-muted text-lg leading-relaxed">
-          Explore mathematical concepts through interactive code and visualizations. 
-          Edit parameters, run Python code, and see results in real-time.
-        </p>
-      </header>
+    <PageLayout 
+      title="Nik's Interactive Blog"
+      description="Exploring math/stats/ML concepts through interactive code and visualizations"
+      showHomeButton={false}
+    >
+      <div className="space-y-16">
+        {/* Hero Section */}
+        <section className="text-center py-8">
+          <h1 className="text-5xl font-bold mb-6 text-foreground">
+            Interactive Mathematical Learning
+          </h1>
+          <p className="text-xl text-muted max-w-3xl mx-auto leading-relaxed">
+            Learn statistical concepts and machine learning algorithms through coding exercises, 
+            dynamic visualizations, and adjustable simulations.
+          </p>
+        </section>
 
-      <main className="space-y-12">
+        {/* Blog Posts Section */}
         <section>
-          <h2 className="text-2xl font-semibold mb-6">Get Started</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-code-bg border border-code-border rounded-lg p-6">
-              <h3 className="font-semibold mb-2">Interactive Demos</h3>
-              <p className="mb-4 text-muted">
-                Explore mathematical concepts through interactive code and visualizations.
-              </p>
-              <Link 
-                href="/demo" 
-                className="inline-block px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium"
-              >
-                Try Interactive Demos →
-              </Link>
-            </div>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <h3 className="font-semibold mb-2">Blog Posts</h3>
-              <p className="mb-4 text-muted">
-                Read in-depth explanations with interactive examples and simulations.
-              </p>
-              <Link 
-                href="/blog/p-values" 
-                className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              >
-                Understanding P-Values →
-              </Link>
-            </div>
+          <h2 className="text-3xl font-semibold mb-8 text-foreground">
+            Featured Articles
+          </h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            {articles.map((article) => (
+              <ArticleCard
+                key={article.id}
+                id={article.id}
+                title={article.title}
+                description={article.description}
+                category={article.category}
+                href={article.href}
+                colorScheme={article.colorScheme}
+              />
+            ))}
           </div>
         </section>
 
+        {/* Interactive Demos Section */}
         <section>
-          <h2 className="text-2xl font-semibold mb-6">Features</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="border border-border rounded-lg p-6">
-              <h3 className="font-semibold mb-2">Client-Side Python</h3>
-              <p className="text-muted">
-                Run Python code directly in your browser using Pyodide. 
-                No server required, instant execution.
-              </p>
-            </div>
-            <div className="border border-border rounded-lg p-6">
-              <h3 className="font-semibold mb-2">Selective Editing</h3>
-              <p className="text-muted">
-                Edit only specific parts of code blocks. 
-                Perfect for guided learning and exploration.
-              </p>
-            </div>
-            <div className="border border-border rounded-lg p-6">
-              <h3 className="font-semibold mb-2">Mathematical Rendering</h3>
-              <p className="text-muted">
-                Beautiful LaTeX rendering with KaTeX. 
-                Write complex mathematical expressions seamlessly.
-              </p>
-            </div>
-            <div className="border border-border rounded-lg p-6">
-              <h3 className="font-semibold mb-2">Interactive Visualizations</h3>
-              <p className="text-muted">
-                Real-time parameter controls and instant visual feedback. 
-                Explore concepts through interaction.
-              </p>
-            </div>
+          <h2 className="text-3xl font-semibold mb-8 text-foreground">
+            Interactive Playground
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {demos.map((demo, index) => (
+              <DemoCard
+                key={index}
+                title={demo.title}
+                description={demo.description}
+                href={demo.href}
+              />
+            ))}
           </div>
         </section>
-      </main>
-    </div>
+
+        {/* Features Section */}
+        <section>
+          <h2 className="text-3xl font-semibold mb-8 text-foreground">
+            What You&apos;ll Find Here
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature, index) => (
+              <FeatureCard
+                key={index}
+                icon={feature.icon}
+                title={feature.title}
+                description={feature.description}
+                colorScheme={feature.colorScheme}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Call to Action */}
+        <section className="text-center py-12 bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950/20 dark:to-green-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <h2 className="text-2xl font-semibold mb-4 text-foreground">
+            {callToAction.title}
+          </h2>
+          <p className="text-muted mb-6 max-w-2xl mx-auto">
+            {callToAction.description}
+          </p>
+          <div className="flex gap-4 justify-center">
+            {callToAction.buttons.map((button, index) => (
+              <Link key={index} href={button.href}>
+                <Button variant={button.variant} size="lg">
+                  {button.text}
+                </Button>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
+    </PageLayout>
   );
 }
