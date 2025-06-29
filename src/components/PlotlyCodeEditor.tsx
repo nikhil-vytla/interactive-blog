@@ -1,22 +1,49 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import ReadOnlyCodeEditor from './ReadOnlyCodeEditor';
 import { usePlotlyExecution } from '@/lib/pyodide-plotly';
+import { EditableRange } from '@/types';
+import ClientErrorBoundary from './ClientErrorBoundary';
 
-interface ReadOnlyRange {
-  from: number;
-  to: number;
-}
-
+/**
+ * Props for the PlotlyCodeEditor component
+ */
 interface PlotlyCodeEditorProps {
+  /** Initial Python code to display in the editor */
   initialCode: string;
-  editableRanges: ReadOnlyRange[];
+  /** Array of character ranges that should be read-only */
+  editableRanges: EditableRange[];
+  /** Additional CSS classes for the editor container */
   className?: string;
+  /** Height of the plot container (default: '500px') */
   plotHeight?: string;
+  /** Additional CSS classes for the plot container */
   plotClassName?: string;
 }
 
+/**
+ * Interactive code editor component specifically designed for Plotly visualizations.
+ * Allows users to edit specific portions of Python code and execute it to generate plots.
+ * 
+ * Features:
+ * - Selective code editing with read-only regions
+ * - Real-time Python execution using Pyodide
+ * - Interactive Plotly chart generation
+ * - Error handling and loading states
+ * 
+ * @param props - The component props
+ * @returns The rendered code editor with plot output
+ * 
+ * @example
+ * ```tsx
+ * <PlotlyCodeEditor
+ *   initialCode={pythonCode}
+ *   editableRanges={[{ from: 100, to: 200 }]}
+ *   plotHeight="400px"
+ * />
+ * ```
+ */
 export default function PlotlyCodeEditor({
   initialCode,
   editableRanges,
@@ -27,50 +54,79 @@ export default function PlotlyCodeEditor({
   const plotRef = useRef<HTMLDivElement>(null);
   const { isLoading, result, error, executeCode } = usePlotlyExecution();
 
+  // Add resize observer to handle dynamic resizing
+  useEffect(() => {
+    if (!plotRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      const windowWithPlotly = window as unknown as { Plotly?: { Plots?: { resize: (element: HTMLElement) => void } } };
+      if (plotRef.current && windowWithPlotly.Plotly?.Plots?.resize) {
+        try {
+          windowWithPlotly.Plotly.Plots.resize(plotRef.current);
+        } catch {
+          // Ignore resize errors for non-plotly elements
+        }
+      }
+    });
+
+    resizeObserver.observe(plotRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   const handleRun = async (code: string) => {
     await executeCode(code, plotRef);
   };
 
   return (
-    <div className="space-y-4">
-      <ReadOnlyCodeEditor
-        initialCode={initialCode}
-        editableRanges={editableRanges}
-        onRun={handleRun}
-        className={className}
-      />
-      
-      {isLoading && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded">
-          <p className="text-blue-700">{result}</p>
-        </div>
-      )}
-
-      {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded">
-          <h4 className="text-red-800 font-semibold mb-2">Error:</h4>
-          <pre className="text-red-700 text-sm whitespace-pre-wrap">{error}</pre>
-        </div>
-      )}
-
-      {result && !isLoading && !error && (
-        <div className="p-4 bg-gray-50 border border-gray-200 rounded">
-          <h4 className="font-semibold mb-2">Output:</h4>
-          <pre className="text-sm whitespace-pre-wrap">{result}</pre>
-        </div>
-      )}
-
-      <div className="p-4 bg-white border border-gray-200 rounded">
-        <h4 className="font-semibold mb-4">Interactive Plot:</h4>
-        <div 
-          ref={plotRef} 
-          className={`w-full border rounded ${plotClassName}`}
-          style={{ minHeight: plotHeight }}
+    <ClientErrorBoundary>
+      <div className="space-y-4">
+        <ReadOnlyCodeEditor
+          initialCode={initialCode}
+          editableRanges={editableRanges}
+          onRun={handleRun}
+          className={className}
         />
-        <p className="text-sm text-muted mt-2">
-          💡 Try: hover over elements, zoom with mouse wheel, pan by dragging, use toolbar buttons
-        </p>
+        
+        {isLoading && (
+          <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded">
+            <p className="text-blue-700 dark:text-blue-300">{result}</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded">
+            <h4 className="text-red-800 dark:text-red-300 font-semibold mb-2">Error:</h4>
+            <pre className="text-red-700 dark:text-red-300 text-sm whitespace-pre-wrap">{error}</pre>
+          </div>
+        )}
+
+        {result && !isLoading && !error && (
+          <div className="p-4 bg-code-bg border border-code-border rounded">
+            <h4 className="font-semibold mb-2 text-foreground">Output:</h4>
+            <pre className="text-sm whitespace-pre-wrap text-foreground">{result}</pre>
+          </div>
+        )}
+
+        <div className="p-4 bg-background border border-border rounded">
+          <h4 className="font-semibold mb-4">Interactive Plot:</h4>
+          <div 
+            ref={plotRef} 
+            className={`w-full border border-border rounded ${plotClassName}`}
+            style={{ 
+              minHeight: plotHeight,
+              height: plotHeight,
+              resize: 'vertical',
+              overflow: 'auto'
+            }}
+          />
+          <p className="text-sm text-muted mt-2">
+            💡 Try: hover over elements, zoom with mouse wheel, pan by dragging, use toolbar buttons
+          </p>
+        </div>
       </div>
-    </div>
+    </ClientErrorBoundary>
   );
 } 

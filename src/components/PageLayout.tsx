@@ -1,15 +1,27 @@
+'use client';
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { PageLayoutProps } from '@/types';
 
-interface PageLayoutProps {
-  children: React.ReactNode;
-  title?: string;
-  description?: string;
-  showHomeButton?: boolean;
-  showTopNavigation?: boolean;
-  className?: string;
-}
-
+/**
+ * Layout component for consistent page structure across the application.
+ * Provides navigation, header, and footer sections with responsive design.
+ * 
+ * @param props - The component props
+ * @returns The rendered page layout
+ * 
+ * @example
+ * ```tsx
+ * <PageLayout 
+ *   title="Demo Page" 
+ *   description="Interactive demonstrations"
+ *   showHomeButton={true}
+ * >
+ *   <div>Your page content here</div>
+ * </PageLayout>
+ * ```
+ */
 export default function PageLayout({
   children,
   title,
