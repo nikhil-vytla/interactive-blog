@@ -1,5 +1,6 @@
 'use client';
 
+import PageLayout from '@/components/PageLayout';
 import PlotlyCodeEditor from '@/components/PlotlyCodeEditor';
 
 export default function PlotTestPage() {
@@ -69,9 +70,10 @@ print(f"Y range: [{min(y):.2f}, {max(y):.2f}]")`;
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Plot Test: Interactive Plotly Visualization</h1>
-      
+    <PageLayout
+      title="Plot Test: Interactive Plotly Visualization"
+      description="This demonstrates interactive Plotly plotting with Pyodide. Try changing the number of points or switching between sine and cosine waves!"
+    >
       <div className="space-y-6">
         <PlotlyCodeEditor
           initialCode={testCode}
@@ -81,14 +83,13 @@ print(f"Y range: [{min(y):.2f}, {max(y):.2f}]")`;
         <div className="bg-blue-50 p-6 rounded-lg">
           <h3 className="text-lg font-semibold mb-3">About This Test</h3>
           <p className="text-gray-700">
-            This demonstrates interactive Plotly plotting with Pyodide. Try changing the number of points 
-            or switching between sine and cosine waves!
+            Experiment with different parameters to see how they affect the interactive visualization!
           </p>
           <p className="text-gray-600 text-sm mt-2">
             The first run will take longer as it downloads the required Python packages.
           </p>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }

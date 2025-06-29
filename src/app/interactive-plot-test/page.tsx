@@ -1,5 +1,6 @@
 'use client';
 
+import PageLayout from '@/components/PageLayout';
 import PlotlyCodeEditor from '@/components/PlotlyCodeEditor';
 
 export default function InteractivePlotTestPage() {
@@ -68,20 +69,16 @@ print(f"Y range: [{min(y):.2f}, {max(y):.2f}]")`;
 
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-bold mb-8">Interactive Plot Test - Plotly Integration</h1>
-      
-      <p className="mb-4 text-muted">
-        This tests interactive Plotly plots. You can zoom, pan, hover, and interact with the plot!
-        Try changing the parameters and see the plot update dynamically.
-      </p>
-
+    <PageLayout
+      title="Interactive Plot Test - Plotly Integration"
+      description="This tests interactive Plotly plots. You can zoom, pan, hover, and interact with the plot! Try changing the parameters and see the plot update dynamically."
+    >
       <PlotlyCodeEditor
         initialCode={testCode}
         editableRanges={getEditableRanges()}
         className="mb-6"
         plotHeight="400px"
       />
-    </div>
+    </PageLayout>
   );
 }
