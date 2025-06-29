@@ -4,7 +4,9 @@ import Button from '@/components/Button';
 import ArticleCard from '@/components/ArticleCard';
 import DemoCard from '@/components/DemoCard';
 import FeatureCard from '@/components/FeatureCard';
-import { articles, demos, features, callToAction } from '@/data/homepage';
+import Tag from '@/components/Tag';
+import { demos, features, callToAction } from '@/data/homepage';
+import { articleRegistry, getAllTags } from '@/content';
 
 export default function Home() {
   return (
@@ -27,19 +29,22 @@ export default function Home() {
 
         {/* Blog Posts Section */}
         <section>
-          <h2 className="text-3xl font-semibold mb-8 text-foreground">
-            Featured Articles
-          </h2>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-semibold text-foreground">
+              Featured Articles
+            </h2>
+            <Link href="/tags">
+              <Button variant="ghost">
+                Browse by Tags →
+              </Button>
+            </Link>
+          </div>
           <div className="grid md:grid-cols-2 gap-8">
-            {articles.map((article) => (
+            {articleRegistry.map((article) => (
               <ArticleCard
                 key={article.id}
-                id={article.id}
-                title={article.title}
-                description={article.description}
-                category={article.category}
-                href={article.href}
-                colorScheme={article.colorScheme}
+                article={article}
+                showTags={true}
               />
             ))}
           </div>
@@ -59,6 +64,36 @@ export default function Home() {
                 href={demo.href}
               />
             ))}
+          </div>
+        </section>
+
+        {/* Popular Tags Section */}
+        <section>
+          <div className="text-center">
+            <h2 className="text-3xl font-semibold mb-4 text-foreground">
+              Explore by Topic
+            </h2>
+            <p className="text-muted mb-8 max-w-2xl mx-auto">
+              Discover articles organized by the topics that interest you most.
+            </p>
+            <div className="flex flex-wrap gap-3 justify-center">
+              {getAllTags().map(tag => (
+                <Tag
+                  key={tag}
+                  tag={tag}
+                  href={`/tags/${encodeURIComponent(tag)}`}
+                  variant="interactive"
+                  size="md"
+                />
+              ))}
+            </div>
+            <div className="mt-6">
+              <Link href="/tags">
+                <Button variant="ghost">
+                  View All Tags →
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
 

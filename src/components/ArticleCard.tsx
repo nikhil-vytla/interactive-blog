@@ -1,14 +1,15 @@
+'use client';
+
 import Link from 'next/link';
-import Button from '@/components/Button';
-import { getArticleReadingTime } from '@/utils/readingTime';
+import { ArticleConfig } from '@/types';
+import Tag from './Tag';
+import Button from './Button';
+import { getArticleReadingTime, formatReadingTime } from '@/utils/readingTime';
 
 interface ArticleCardProps {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  href: string;
-  colorScheme: 'blue' | 'green' | 'purple' | 'red' | 'yellow';
+  article: ArticleConfig;
+  showTags?: boolean;
+  className?: string;
 }
 
 const colorSchemes = {
@@ -60,38 +61,57 @@ const colorSchemes = {
 };
 
 export default function ArticleCard({ 
-  id, 
-  title, 
-  description, 
-  category, 
-  href, 
-  colorScheme 
+  article, 
+  showTags = true,
+  className = "" 
 }: ArticleCardProps) {
-  const colors = colorSchemes[colorScheme];
+  const colors = colorSchemes[article.colorScheme || 'blue'];
   
   return (
-    <article className={`${colors.cardBg} border ${colors.cardBorder} rounded-lg p-6 hover:shadow-lg transition-shadow`}>
+    <article className={`${colors.cardBg} border ${colors.cardBorder} rounded-lg p-6 hover:shadow-lg transition-shadow ${className} flex flex-col`}>
+      <div className="flex-grow">
       <div className="mb-4">
         <span className={`inline-block px-3 py-1 ${colors.categoryBg} ${colors.categoryText} text-sm font-medium rounded-full`}>
-          {category}
+          {article.category}
         </span>
       </div>
       <h3 className={`text-xl font-semibold mb-3 ${colors.titleText}`}>
-        {title}
+        {article.title}
       </h3>
-      <p className={`${colors.descriptionText} mb-6`}>
-        {description}
+      <p className={`${colors.descriptionText} mb-6 line-clamp-3`}>
+        {article.description}
       </p>
-      <div className="flex items-center justify-between">
-        <Link href={href}>
-          <Button variant="secondary" size="sm">
+      {showTags && article.tags && article.tags.length > 0 && (
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-2">
+            {article.tags.slice(0, 3).map(tag => (
+              <Tag
+                key={tag}
+                tag={tag}
+                size="sm"
+                href={`/tags/${encodeURIComponent(tag)}`}
+                className="hover:opacity-80"
+              />
+            ))}
+            {article.tags.length > 3 && (
+              <span className="text-xs text-muted">
+                +{article.tags.length - 3} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+      </div>
+      <div className="flex items-center justify-between mt-auto">
+        <Link href={`/blog/${article.slug}`}>
+          <Button variant="card" size="sm" colorScheme={article.colorScheme || 'blue'}>
             Read Article →
           </Button>
         </Link>
         <span className={`text-sm ${colors.readingTimeText}`}>
-          {getArticleReadingTime(id)}
+          {formatReadingTime(getArticleReadingTime(article))}
         </span>
       </div>
     </article>
   );
-} 
+}
