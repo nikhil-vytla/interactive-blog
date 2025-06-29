@@ -11,7 +11,7 @@ describe('Home Page', () => {
   it('renders page description', () => {
     render(<Home />)
     
-    expect(screen.getByText(/explore mathematical concepts through interactive code/i)).toBeInTheDocument()
+    expect(screen.getByText(/explore mathematical concepts through interactive code and visualizations.*edit parameters, run python code/i)).toBeInTheDocument()
   })
 
   it('renders demo button with correct link', () => {
@@ -26,7 +26,7 @@ describe('Home Page', () => {
     render(<Home />)
     
     expect(screen.getByRole('heading', { name: /get started/i, level: 2 })).toBeInTheDocument()
-    expect(screen.getByText(/ready to explore interactive mathematical concepts/i)).toBeInTheDocument()
+    expect(screen.getByText(/read in-depth explanations with interactive examples/i)).toBeInTheDocument()
   })
 
   it('renders Features section', () => {
