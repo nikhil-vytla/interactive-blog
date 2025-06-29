@@ -2,11 +2,11 @@ import { ArticleConfig } from '@/types';
 
 export const kNearestNeighborsConfig: ArticleConfig = {
   id: 'k-nearest-neighbors',
-  title: 'Understanding k-Nearest Neighbors',
-  description: 'Learn how the k-Nearest Neighbors algorithm works through interactive visualizations and examples sfdjaldfk ldfs klsfjsd kfsd fadfk sjfk lsdjfk lksdf jkldslfjdsllf jdsljf dfljdsk flksd fsldjfjs fls ljfsd',
+  title: 'k-Nearest Neighbors (kNN)',
+  description: '🫂 Like a good neighbor, "kNN Farm" (™️) is there.',
   category: 'Machine Learning',
   slug: 'k-nearest-neighbors',
-  publishedAt: '2024-01-15',
+  publishedAt: '2025-06-28',
   tags: ['machine-learning', 'classification', 'supervised-learning', 'knn'],
   colorScheme: 'green',
   sections: [
@@ -109,7 +109,7 @@ export const kNearestNeighborsConfig: ArticleConfig = {
       alertType: 'note',
       title: 'Distance Metrics',
       content: `
-        <p>KNN can use different distance metrics:</p>
+        <p>kNN can use different distance metrics:</p>
         <ul>
           <li><strong>Euclidean:</strong> Standard straight-line distance</li>
           <li><strong>Manhattan:</strong> Sum of absolute differences</li>
@@ -175,7 +175,7 @@ export const kNearestNeighborsConfig: ArticleConfig = {
       title: 'Key Takeaways',
       content: `
         <ul>
-          <li>→ KNN is intuitive: "Tell me who your neighbors are, and I'll tell you who you are"</li>
+          <li>→ kNN is intuitive: "Tell me who your neighbors are, and I'll tell you who you are"</li>
           <li>→ The choice of k is crucial and should be validated using cross-validation</li>
           <li>→ Feature scaling is essential for good performance</li>
           <li>→ Consider computational complexity for large datasets</li>
