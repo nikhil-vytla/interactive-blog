@@ -1,5 +1,5 @@
 /**
- * Common type definitions for the Interactive Blog application
+ * Common type definitions for the blog
  */
 
 export interface EditableRange {

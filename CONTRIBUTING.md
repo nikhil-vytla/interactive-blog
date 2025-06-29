@@ -1,4 +1,4 @@
-# Contributing to Interactive Blog
+# Contributing to Nik's Blog (v2025)
 
 Welcome! This guide will help you contribute to our interactive educational blog about mathematics, statistics, and machine learning.
 
