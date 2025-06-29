@@ -31,6 +31,23 @@ npm test         # Run tests
 }
 ```
 
+## Areas to Explore
+- Probability
+- Data Science
+- Statistical Learning
+- Machine Learning
+- Neural Networks
+- Transformers
+- LLMs
+- Explainability
+- Trustworthiness
+- Interpretability
+- Reinforcement Learning (RL)
+- AI Safety
+- Evaluations
+- Agents
+
+
 ## Inspo
 
 ### Code
