@@ -84,7 +84,7 @@ export default function ArticleTemplate({ config, className = "" }: ArticleTempl
         {/* Article Footer */}
         <footer className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
           <div className="text-sm text-muted">
-            Published on {new Date(config.publishedAt).toLocaleDateString('en-US', {
+            Published on {new Date(config.publishedAt + 'T00:00:00').toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
               day: 'numeric'
