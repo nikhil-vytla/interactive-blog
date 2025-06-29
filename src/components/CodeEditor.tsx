@@ -124,7 +124,7 @@ export default function CodeEditor({
     return () => {
       view.destroy();
     };
-  }, [initialCode, onChange]);
+  }, [initialCode, onChange, readOnlyRanges]);
 
   useEffect(() => {
     if (viewRef.current) {
