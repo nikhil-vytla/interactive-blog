@@ -15,7 +15,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nik&apos;s Interactive Blog",
+  title: "Nik's Interactive Blog",
   description: "A little interactive math + coding blog experiment",
 };
 
