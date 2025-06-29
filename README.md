@@ -35,17 +35,37 @@ npm test         # Run tests
 - Probability
 - Data Science
 - Statistical Learning
+    - Types of Models
+        - Regression (linear, logistic, polynomial, etc.)
+        - Classification
+        - DTs, RFs, SVMs
+        - Clustering (kNNs, etc.)
+        - Dimensionality Reduction (PCA, LDA, ICA, UMAP, t-SNE, etc.)
 - Machine Learning
-- Neural Networks
-- Transformers
-- LLMs
-- Explainability
-- Trustworthiness
-- Interpretability
-- Reinforcement Learning (RL)
-- AI Safety
-- Evaluations
-- Agents
+    - Types of Models
+        - MLPs
+        - CNNs
+        - RNNs
+        - GANs
+        - Diffusion Models
+        - AEs (VAEs, SAEs, etc)
+        - Transformers
+        - LLMs
+        - Agents
+        - Liquid State Models
+        - Supervised, Unsupervised, Semi-supervised, & Reinforcement Learning
+- Topics
+    - Explainability 
+    - Bias and Fairness
+    - Trustworthiness
+    - Interpretability 
+    - AI Safety, Governance, Policy
+    - Evaluations 
+    - Synthetic Data Generation
+    - Causality
+- ML for Health
+    - Drug Discovery
+    - Disease Prediction
 
 
 ## Inspo
