@@ -40,7 +40,7 @@ test.describe('Tag System - Content Discovery', () => {
       await tagPage.waitForPageReady();
       
       // Verify we navigated to a specific tag page
-      expect(page.url()).toMatch(/\/tags\/[^\/]+$/);
+      expect(page.url()).toMatch(/\/tags\/[^\/]+\/?$/);
       
       // Verify tag page structure
       await tagPage.verifyTagPageLoaded();

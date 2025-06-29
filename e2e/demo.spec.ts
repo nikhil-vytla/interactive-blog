@@ -76,7 +76,7 @@ test.describe('Demo Page - Interactive Features', () => {
       },
       {
         action: 'scroll',
-        target: 'main',
+        target: 'body',
       },
       {
         action: 'navigate',

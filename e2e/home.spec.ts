@@ -67,7 +67,7 @@ test.describe('Home Page - User Journey', () => {
         action: 'click',
         target: 'a[href*="/tags"]:visible',
         verify: async () => {
-          await expect(page.url()).toMatch(/\/tags/);
+          await expect(page.url()).toMatch(/\/tags\/?$/);
         }
       }
     ]);
