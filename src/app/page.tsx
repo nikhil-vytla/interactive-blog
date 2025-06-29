@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
       <header className="mb-12">
-        <h1 className="text-4xl font-bold mb-4">Nik's Interactive Blog</h1>
+        <h1 className="text-4xl font-bold mb-4">Nik&apos;s Interactive Blog</h1>
         <p className="text-muted text-lg leading-relaxed">
           Explore mathematical concepts through interactive code and visualizations. 
           Edit parameters, run Python code, and see results in real-time.
