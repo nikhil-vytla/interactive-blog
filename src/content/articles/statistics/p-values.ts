@@ -2,8 +2,8 @@ import { ArticleConfig } from '@/types';
 
 export const pValuesConfig: ArticleConfig = {
   id: 'p-values',
-  title: 'Understanding p-values',
-  description: 'An exploration of p-values through interactive examples and visualizations, with a focus on common interpretations and misconceptions.',
+  title: 'p-values',
+  description: '🙋‍♀️ Does anyone know what a p-value is? And why do we always choose 0.05?',
   category: 'Statistics',
   slug: 'p-values',
   publishedAt: '2025-06-27',
