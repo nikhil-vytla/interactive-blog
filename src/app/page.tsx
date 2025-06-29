@@ -11,7 +11,7 @@ import { articleRegistry, getAllTags } from '@/content';
 export default function Home() {
   return (
     <PageLayout 
-      title="Nik's Interactive Blog"
+      title="Nik's Blog (v2025)"
       description="Exploring math/stats/ML concepts through interactive code and visualizations"
       showHomeButton={false}
     >
@@ -19,11 +19,10 @@ export default function Home() {
         {/* Hero Section */}
         <section className="text-center py-8">
           <h1 className="text-5xl font-bold mb-6 text-foreground">
-            Interactive Mathematical Learning
+            Welcome to my blog! 👋
           </h1>
           <p className="text-xl text-muted max-w-3xl mx-auto leading-relaxed">
-            Learn statistical concepts and machine learning algorithms through coding exercises, 
-            dynamic visualizations, and adjustable simulations.
+            This is a little (personal) experiment in interactive learning. It's a work in progress, so please bear with me.
           </p>
         </section>
 

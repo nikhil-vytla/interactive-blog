@@ -23,7 +23,7 @@ export const DANGEROUS_PATTERNS = [
 ] as const;
 
 export const APP_CONFIG = {
-  SITE_NAME: "Nik's Interactive Blog",
+  SITE_NAME: "Nik's Blog (v2025)",
   SITE_DESCRIPTION: 'Explore mathematical concepts through interactive code and visualizations',
   MAX_PLOT_SIZE: 1000, // pixels
   DEFAULT_TIMEOUT: 5000, // ms
