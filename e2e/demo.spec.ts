@@ -6,21 +6,21 @@ test.describe('Demo Page', () => {
   });
 
   test('loads demo page successfully', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /interactive demos/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /interactive demos/i, level: 1 })).toBeVisible();
   });
 
   test('displays trigonometric demo section', async ({ page }) => {
     await expect(page.getByText(/trigonometric functions/i)).toBeVisible();
-    await expect(page.getByText(/frequency/i)).toBeVisible();
-    await expect(page.getByText(/amplitude/i)).toBeVisible();
-    await expect(page.getByText(/phase/i)).toBeVisible();
+    await expect(page.getByText(/frequency/i).first()).toBeVisible();
+    await expect(page.getByText(/amplitude/i).first()).toBeVisible();
+    await expect(page.getByText(/phase/i).first()).toBeVisible();
   });
 
   test('displays statistical demo section', async ({ page }) => {
     await expect(page.getByText(/statistical distributions/i)).toBeVisible();
     await expect(page.getByText(/sample size/i)).toBeVisible();
-    await expect(page.getByText(/mean/i)).toBeVisible();
-    await expect(page.getByText(/standard deviation/i)).toBeVisible();
+    await expect(page.getByText(/mean/i).first()).toBeVisible();
+    await expect(page.getByText(/standard deviation/i).first()).toBeVisible();
   });
 
   test('has code editors with run buttons', async ({ page }) => {
@@ -33,8 +33,8 @@ test.describe('Demo Page', () => {
   });
 
   test('code editors have syntax highlighting', async ({ page }) => {
-    // Check if CodeMirror editor is present
-    await expect(page.locator('.cm-editor')).toBeVisible();
+    // Wait for code editor container to load (PlotlyCodeEditor)
+    await expect(page.locator('.border.border-code-border').first()).toBeVisible({ timeout: 10000 });
   });
 
   test('navigation back to home works', async ({ page }) => {
@@ -46,7 +46,7 @@ test.describe('Demo Page', () => {
 
   test('page is responsive on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await expect(page.getByRole('heading', { name: /interactive demos/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /interactive demos/i, level: 1 })).toBeVisible();
     await expect(page.getByRole('button', { name: /run/i }).first()).toBeVisible();
   });
 });

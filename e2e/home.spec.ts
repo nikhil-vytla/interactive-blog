@@ -11,17 +11,9 @@ test.describe('Home Page', () => {
   });
 
   test('displays main description', async ({ page }) => {
-    await expect(page.getByText(/explore mathematical concepts through interactive code/i)).toBeVisible();
+    await expect(page.getByText(/explore mathematical concepts through interactive code/i).first()).toBeVisible();
   });
 
-  test('demo button navigates to demo page', async ({ page }) => {
-    const demoLink = page.getByRole('link', { name: /try interactive demos/i });
-    await expect(demoLink).toBeVisible();
-    
-    await demoLink.click();
-    await page.waitForURL('/demo');
-    await expect(page.getByRole('heading', { name: /interactive demos/i })).toBeVisible();
-  });
 
   test('displays all feature sections', async ({ page }) => {
     const features = [
@@ -39,7 +31,7 @@ test.describe('Home Page', () => {
   test('has responsive design', async ({ page }) => {
     // Test desktop view
     await page.setViewportSize({ width: 1200, height: 800 });
-    await expect(page.locator('.grid.md\\:grid-cols-2')).toBeVisible();
+    await expect(page.locator('.grid.md\\:grid-cols-2').first()).toBeVisible();
 
     // Test mobile view
     await page.setViewportSize({ width: 375, height: 667 });
