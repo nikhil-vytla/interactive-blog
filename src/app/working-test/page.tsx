@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PageLayout from '@/components/PageLayout';
 import SimpleCodeEditor from '@/components/SimpleCodeEditor';
 
 export default function WorkingTestPage() {
@@ -33,13 +34,10 @@ print("This is a working test!")`;
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-bold mb-8">Working Test - Step 1</h1>
-      
-      <p className="mb-4 text-muted">
-        This tests the basic code editor functionality without read-only regions or Pyodide.
-      </p>
-
+    <PageLayout
+      title="Working Test - Step 1"
+      description="This tests the basic code editor functionality without read-only regions or Pyodide."
+    >
       <SimpleCodeEditor
         initialCode={testCode}
         onRun={handleRun}
@@ -58,6 +56,6 @@ print("This is a working test!")`;
           <pre className="text-sm whitespace-pre-wrap">{result}</pre>
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }

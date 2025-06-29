@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PageLayout from '@/components/PageLayout';
 import { executePythonCode } from '@/lib/pyodide';
 
 export default function SimpleTestPage() {
@@ -29,9 +30,10 @@ print("Hello from Python!")
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-bold mb-8">Simple Plot Test</h1>
-      
+    <PageLayout
+      title="Simple Plot Test"
+      description="Basic Python execution test with simple calculations and output."
+    >
       <button 
         onClick={runSimpleCode}
         disabled={isLoading}
@@ -65,6 +67,6 @@ print("Hello from Python!")
           )}
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }

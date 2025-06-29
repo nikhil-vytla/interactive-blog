@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PageLayout from '@/components/PageLayout';
 import SimpleCodeEditor from '@/components/SimpleCodeEditor';
 
 // Local type for this test
@@ -80,13 +81,10 @@ print(f"sqrt(16) = {math.sqrt(16)}")`;
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-bold mb-8">Pyodide Test - Step 2</h1>
-      
-      <p className="mb-4 text-muted">
-        This tests real Python execution with Pyodide. The first run will take longer as it downloads Pyodide.
-      </p>
-
+    <PageLayout
+      title="Pyodide Test - Step 2"
+      description="This tests real Python execution with Pyodide. The first run will take longer as it downloads Pyodide."
+    >
       <SimpleCodeEditor
         initialCode={testCode}
         onRun={handleRun}
@@ -105,6 +103,6 @@ print(f"sqrt(16) = {math.sqrt(16)}")`;
           <pre className="text-sm whitespace-pre-wrap">{result}</pre>
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }
