@@ -48,3 +48,63 @@ export interface BlogPost {
   publishedAt: string;
   tags: string[];
 }
+
+// Article configuration system types
+export interface Parameter {
+  name: string;
+  label: string;
+  type: 'number' | 'range' | 'select' | 'checkbox' | 'text' | 'array';
+  defaultValue: unknown;
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: Array<{ label: string; value: unknown }>;
+  description?: string;
+}
+
+export interface ContentSection {
+  type: 'text' | 'math' | 'alert' | 'code' | 'interactive';
+  title?: string;
+  content?: string;
+  alertType?: 'info' | 'warning' | 'error' | 'success' | 'note' | 'correct' | 'wrong' | 'definition' | 'takeaways';
+  mathExpression?: string;
+  mathDisplay?: boolean;
+  codeTemplate?: string;
+  parameters?: Parameter[];
+  editableRanges?: EditableRange[];
+}
+
+export interface ArticleConfig {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  slug: string;
+  publishedAt: string;
+  tags: string[];
+  parameters?: Parameter[];
+  sections: ContentSection[];
+  colorScheme?: 'blue' | 'green' | 'purple' | 'yellow' | 'red';
+}
+
+export interface MathFormula {
+  id: string;
+  name: string;
+  description: string;
+  expression: string;
+  variables?: Array<{
+    symbol: string;
+    description: string;
+  }>;
+  category: string;
+}
+
+export interface CodeTemplate {
+  id: string;
+  name: string;
+  description: string;
+  code: string;
+  parameters: Parameter[];
+  category: 'visualization' | 'statistics' | 'ml' | 'simulation';
+  libraries: string[];
+}

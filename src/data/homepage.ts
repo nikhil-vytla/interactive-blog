@@ -24,16 +24,6 @@ export const demos = [
     description: "Explore normal distributions, Q-Q plots, and statistical properties with real-time controls.",
     href: "/demo",
   },
-  {
-    title: "Dynamic Plotting",
-    description: "Create and customize visualizations with instant feedback and flexible options.",
-    href: "/interactive-plot-test",
-  },
-  {
-    title: "Python Code Editor",
-    description: "Write and execute Python code directly in your browser with selective editing capabilities.",
-    href: "/plot-test",
-  },
 ];
 
 export const features = [

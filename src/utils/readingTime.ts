@@ -1,5 +1,9 @@
-import { execSync } from 'child_process';
-import path from 'path';
+import { ArticleConfig } from '@/types';
+
+/**
+ * Simplified reading time utilities following KISS principle
+ * Removed complex shell command execution
+ */
 
 /**
  * Calculate estimated reading time based on word count
@@ -21,24 +25,55 @@ export function formatReadingTime(minutes: number): string {
 }
 
 /**
- * Get word count for a specific article file
- * @param articleId - The article identifier
- * @returns Word count from the actual file
+ * Calculate word count from text content
+ * @param text - The text content to count words in
+ * @returns Number of words
  */
-function getArticleWordCount(articleId: string): number {
-    const filePath = path.join(process.cwd(), 'src', 'app', 'blog', articleId, 'page.tsx');
-    const output = execSync(`wc -w "${filePath}"`, { encoding: 'utf8' });
-    const wordCount = parseInt(output.trim().split(/\s+/)[0]);
-    return wordCount;
+export function getWordCount(text: string): number {
+  return text.trim().split(/\s+/).filter(word => word.length > 0).length;
 }
 
 /**
- * Get reading time for a specific article
- * @param articleId - The article identifier
- * @returns Formatted reading time string
+ * Calculate reading time from text content
+ * @param content - The text content
+ * @param wordsPerMinute - Average reading speed (default: 200)
+ * @returns Estimated reading time in minutes
  */
-export function getArticleReadingTime(articleId: string): string {
-  const wordCount = getArticleWordCount(articleId);
-  const minutes = calculateReadingTime(wordCount);
-  return formatReadingTime(minutes);
-} 
+export function getReadingTimeFromContent(content: string, wordsPerMinute: number = 200): number {
+  const wordCount = getWordCount(content);
+  return calculateReadingTime(wordCount, wordsPerMinute);
+}
+
+/**
+ * Calculate reading time from article configuration
+ * @param article - The article configuration
+ * @returns Estimated reading time in minutes
+ */
+export function getArticleReadingTime(article: ArticleConfig): number {
+  let totalWords = 0;
+  
+  // Count words from title and description
+  totalWords += getWordCount(article.title);
+  totalWords += getWordCount(article.description);
+  
+  // Count words from all sections
+  article.sections.forEach(section => {
+    if (section.content) {
+      // Strip HTML tags for word counting
+      const textContent = section.content.replace(/<[^>]*>/g, ' ');
+      totalWords += getWordCount(textContent);
+    }
+    if (section.title) {
+      totalWords += getWordCount(section.title);
+    }
+    // Add some words for interactive sections (code, math, etc.)
+    if (section.type === 'interactive' || section.type === 'code') {
+      totalWords += 50; // Estimate for code/interactive content
+    }
+  });
+  
+  return calculateReadingTime(totalWords);
+}
+
+// Removed getFormattedReadingTime to avoid circular dependency
+// Components should use getArticleReadingTime directly with the article object 

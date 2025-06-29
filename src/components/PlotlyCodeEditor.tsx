@@ -1,10 +1,10 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import ReadOnlyCodeEditor from './ReadOnlyCodeEditor';
+import CodeEditor from './CodeEditor';
 import { usePlotlyExecution } from '@/lib/pyodide-plotly';
 import { EditableRange } from '@/types';
-import ClientErrorBoundary from './ClientErrorBoundary';
+import { ErrorBoundary } from './ErrorBoundary';
 
 /**
  * Props for the PlotlyCodeEditor component
@@ -81,11 +81,20 @@ export default function PlotlyCodeEditor({
   };
 
   return (
-    <ClientErrorBoundary>
+    <ErrorBoundary 
+      onError={(error, errorInfo) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.group('🚨 PlotlyCodeEditor Error');
+          console.error('Error:', error);
+          console.error('Error Info:', errorInfo);
+          console.groupEnd();
+        }
+      }}
+    >
       <div className="space-y-4">
-        <ReadOnlyCodeEditor
+        <CodeEditor
           initialCode={initialCode}
-          editableRanges={editableRanges}
+          readOnlyRanges={editableRanges}
           onRun={handleRun}
           className={className}
         />
@@ -127,6 +136,6 @@ export default function PlotlyCodeEditor({
           </p>
         </div>
       </div>
-    </ClientErrorBoundary>
+    </ErrorBoundary>
   );
 } 
