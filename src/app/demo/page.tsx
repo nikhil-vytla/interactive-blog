@@ -1,127 +1,11 @@
 'use client';
 
-import ReadOnlyCodeEditor from '@/components/ReadOnlyCodeEditor';
+import PlotlyCodeEditor from '@/components/PlotlyCodeEditor';
 import { DisplayMath, InlineMath } from '@/components/MathRenderer';
-import { useState, useRef } from 'react';
-
-// Local type for Pyodide
-interface PyodideInstance {
-  runPython(code: string): unknown;
-  runPythonAsync?(code: string): Promise<unknown>;
-  loadPackage(packages: string[]): Promise<void>;
-}
 
 export default function DemoPage() {
-  const [sineResult, setSineResult] = useState<string>('');
-  const [sineLoading, setSineLoading] = useState(false);
-  const sinePlotRef = useRef<HTMLDivElement>(null);
-  
-  const [statsResult, setStatsResult] = useState<string>('');
-  const [statsLoading, setStatsLoading] = useState(false);
-  const statsPlotRef = useRef<HTMLDivElement>(null);
 
-  // Shared Pyodide execution function
-  const executePython = async (
-    code: string,
-    setResult: (result: string) => void,
-    plotRef: React.RefObject<HTMLDivElement | null>,
-    setLoading: (loading: boolean) => void
-  ) => {
-    setLoading(true);
-    setResult('Loading Pyodide...');
-    
-    try {
-      const windowWithPyodide = window as Window & { loadPyodide?: (config: Record<string, unknown>) => Promise<PyodideInstance> };
-      if (!windowWithPyodide.loadPyodide) {
-        setResult('Loading Pyodide script...');
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js';
-        script.async = true;
-        
-        await new Promise((resolve, reject) => {
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-      }
 
-      setResult('Initializing Pyodide...');
-      const pyodide: PyodideInstance = await windowWithPyodide.loadPyodide!({
-        indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/'
-      });
-
-      setResult('Loading Python packages...');
-      await pyodide.loadPackage(['numpy', 'micropip']);
-
-      setResult('Installing Plotly via micropip...');
-      await pyodide.runPythonAsync!(`
-        import micropip
-        await micropip.install('plotly')
-      `);
-
-      setResult('Running Python code...');
-      
-      await pyodide.runPython(`
-        import sys
-        from io import StringIO
-        old_stdout = sys.stdout
-        sys.stdout = captured_output = StringIO()
-        fig_json = None
-      `);
-
-      await pyodide.runPython(code);
-      
-      const output = await pyodide.runPython(`
-        output_str = captured_output.getvalue()
-        sys.stdout = old_stdout
-        output_str
-      `);
-
-      const plotJson = await pyodide.runPython(`
-        import json
-        fig_dict = fig.to_dict() if 'fig' in locals() else None
-        json.dumps(fig_dict) if fig_dict else None
-      `);
-
-      setResult(`Success!\n\nOutput:\n${output}`);
-      
-      // Render the interactive plot
-      if (plotJson && plotRef.current) {
-        // Load Plotly dynamically
-        const script = document.createElement('script');
-        script.src = 'https://cdn.plot.ly/plotly-2.35.2.min.js';
-        
-        if (!document.querySelector('script[src*="plotly"]')) {
-          document.head.appendChild(script);
-          await new Promise((resolve) => {
-            script.onload = resolve;
-          });
-        }
-
-        const plotData = JSON.parse(plotJson as string);
-        
-        // Clear previous plot
-        plotRef.current.innerHTML = '';
-        
-        // Create new interactive plot using global Plotly
-        const windowWithPlotly = window as unknown as { Plotly?: { newPlot: (...args: unknown[]) => Promise<unknown> } };
-        const Plotly = windowWithPlotly.Plotly;
-        if (Plotly) {
-          await Plotly.newPlot(plotRef.current, plotData.data, plotData.layout, {
-            responsive: true,
-            displayModeBar: true,
-            modeBarButtonsToRemove: ['pan2d', 'lasso2d'],
-          });
-        }
-      }
-      
-    } catch (error) {
-      console.error('Error:', error);
-      setResult(`Error: ${String(error)}`);
-    } finally {
-      setLoading(false);
-    }
-  };
   const sinWaveCode = `import numpy as np
 import plotly.graph_objects as go
 
@@ -330,37 +214,11 @@ print(f"Max: {np.max(data):.3f}")`;
               <p className="text-muted text-sm mb-4">Modify the frequency, amplitude, and phase parameters to see how they affect the sine wave.</p>
             </div>
             
-            <ReadOnlyCodeEditor
+            <PlotlyCodeEditor
               initialCode={sinWaveCode}
               editableRanges={getSinWaveEditableRanges()}
-              onRun={(code) => executePython(code, setSineResult, sinePlotRef, setSineLoading)}
               className="mb-4"
             />
-
-            {sineLoading && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded">
-                <p className="text-blue-700">{sineResult}</p>
-              </div>
-            )}
-
-            {sineResult && !sineLoading && (
-              <div className="p-4 bg-gray-50 border border-gray-200 rounded">
-                <h4 className="font-semibold mb-2">Output:</h4>
-                <pre className="text-sm whitespace-pre-wrap">{sineResult}</pre>
-              </div>
-            )}
-
-            <div className="p-4 bg-white border border-gray-200 rounded">
-              <h4 className="font-semibold mb-4">Interactive Plot:</h4>
-              <div 
-                ref={sinePlotRef} 
-                className="w-full h-96 border rounded"
-                style={{ minHeight: '500px' }}
-              />
-              <p className="text-sm text-muted mt-2">
-                💡 Try: hover over the line, zoom with mouse wheel, pan by dragging, use toolbar buttons
-              </p>
-            </div>
           </div>
         </section>
 
@@ -388,37 +246,11 @@ print(f"Max: {np.max(data):.3f}")`;
               <p className="text-muted text-sm mb-4">Adjust the sample size, mean, and standard deviation to explore how they affect the distribution.</p>
             </div>
             
-            <ReadOnlyCodeEditor
+            <PlotlyCodeEditor
               initialCode={statisticsCode}
               editableRanges={getStatisticsEditableRanges()}
-              onRun={(code) => executePython(code, setStatsResult, statsPlotRef, setStatsLoading)}
               className="mb-4"
             />
-
-            {statsLoading && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded">
-                <p className="text-blue-700">{statsResult}</p>
-              </div>
-            )}
-
-            {statsResult && !statsLoading && (
-              <div className="p-4 bg-gray-50 border border-gray-200 rounded">
-                <h4 className="font-semibold mb-2">Output:</h4>
-                <pre className="text-sm whitespace-pre-wrap">{statsResult}</pre>
-              </div>
-            )}
-
-            <div className="p-4 bg-white border border-gray-200 rounded">
-              <h4 className="font-semibold mb-4">Interactive Plot:</h4>
-              <div 
-                ref={statsPlotRef} 
-                className="w-full h-96 border rounded"
-                style={{ minHeight: '500px' }}
-              />
-              <p className="text-sm text-muted mt-2">
-                💡 Try: hover over data points, zoom into specific regions, toggle traces on/off
-              </p>
-            </div>
           </div>
         </section>
 
