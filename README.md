@@ -1,4 +1,4 @@
-# Nik's Interactive Blog
+# Nik's Blog (v2025)
 
 A little interactive blog experiment, 
 

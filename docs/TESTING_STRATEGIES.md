@@ -1,192 +1,99 @@
-# Testing Strategies for Flexible UI Tests
+# UI Testing Strategies
 
-This document outlines strategies to make your tests more resilient to copy changes while maintaining reliability.
+This document outlines strategies for writing robust and maintainable UI tests, resilient to frequent content changes.
 
-## 1. Test Structure Over Content
+## Core Principles
 
-Instead of testing exact text, focus on semantic structure:
+### 1. Test Behavior, Not Exact Copy
+
+Focus on how the UI behaves and responds to user interactions, rather than asserting on exact text strings. This makes tests resilient to copy updates.
 
 ```typescript
-// ❌ Brittle - fails when copy changes
-expect(screen.getByText('Welcome to our amazing blog about statistics')).toBeInTheDocument()
+// ❌ Brittle: Fails when UI text changes
+expect(screen.getByText('Welcome to our amazing blog')).toBeInTheDocument();
 
-// ✅ Flexible - tests structure
-const heroHeadings = screen.getAllByRole('heading', { level: 1 })
-expect(heroHeadings.length).toBeGreaterThanOrEqual(1)
+// ✅ Flexible: Tests semantic structure and behavior
+expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
+expect(screen.getByRole('heading', { level: 1 }).textContent).toMatch(/welcome/i);
 ```
 
-## 2. Data-Driven Testing
+### 2. Leverage Semantic HTML & Accessibility Roles
 
-Test against your data sources instead of hardcoded expectations:
+Prioritize selectors based on semantic HTML elements and ARIA roles. These are more stable than CSS classes or text content.
+
+```typescript
+// ✅ Prefer semantic roles
+expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+expect(screen.getByRole('navigation')).toBeInTheDocument();
+
+// ❌ Avoid fragile selectors
+expect(screen.getByTestId('submit-btn')).toBeInTheDocument(); // Use sparingly for critical elements
+```
+
+### 3. Data-Driven Testing
+
+When testing components that render dynamic content, drive your tests directly from the data source.
 
 ```typescript
 // ✅ Tests dynamic content from data
+import { features } from '@/data/homepage'; // Example data source
+
 features.forEach(feature => {
-  expect(screen.getByRole('heading', { 
-    name: new RegExp(feature.title, 'i'), 
-    level: 3 
-  })).toBeInTheDocument()
-})
-
-callToAction.buttons.forEach(button => {
-  const link = screen.getByRole('link', { name: new RegExp(button.text, 'i') })
-  expect(link).toHaveAttribute('href', button.href)
-})
+  expect(screen.getByRole('heading', { name: new RegExp(feature.title, 'i'), level: 3 })).toBeInTheDocument();
+});
 ```
 
-## 3. Semantic Role Testing
+### 4. Flexible Assertions
 
-Focus on accessibility roles and user interactions:
-
-```typescript
-// ✅ Tests functionality over copy
-expect(screen.getAllByRole('button').length).toBeGreaterThan(2)
-expect(screen.getAllByRole('link').length).toBeGreaterThan(5)
-expect(screen.getByRole('navigation')).toBeInTheDocument()
-```
-
-## 4. Flexible Text Matching
-
-Use partial matches and regex patterns:
+Use regular expressions or partial matches for text content when exact strings are not critical.
 
 ```typescript
 // ✅ Flexible text matching
-expect(screen.getByText(/statistics.*concepts/i)).toBeInTheDocument()
+expect(screen.getByText(/statistics.*concepts/i)).toBeInTheDocument();
 
 // ✅ Key word matching
-expect(screen.getByText(new RegExp(
-  ['python', 'code', 'browser'].join('.*'), 'i'
-))).toBeInTheDocument()
+expect(screen.getByText(new RegExp(['python', 'code', 'browser'].join('.*'), 'i'))).toBeInTheDocument();
 ```
 
-## 5. Layout and Visual Structure
+### 5. Test Layout & Visual Structure
 
-Test CSS classes and layout without content coupling:
+Verify the correct application of CSS classes and responsive behavior without coupling to specific content.
 
 ```typescript
-// ✅ Tests responsive design
-const grids = container.querySelectorAll('.grid')
-expect(grids.length).toBeGreaterThan(0)
-
-const responsiveGrid = container.querySelector('[class*="md:grid-cols"]')
-expect(responsiveGrid).toBeInTheDocument()
+// ✅ Tests responsive grid layout
+const grids = container.querySelectorAll('.grid');
+expect(grids.length).toBeGreaterThan(0);
+expect(container.querySelector('[class*="md:grid-cols"]')).toBeInTheDocument();
 ```
 
-## 6. Component Count Testing
+### 6. Component Count Verification
 
-Test for expected number of components:
+Assert on the expected number of components or sections to ensure all dynamic content is rendered.
 
 ```typescript
 // ✅ Tests that all articles render
-const articles = screen.getAllByRole('article')
-expect(articles.length).toBe(articleRegistry.length)
+import { articleRegistry } from '@/content'; // Example data source
+
+const articles = screen.getAllByRole('article');
+expect(articles.length).toBe(articleRegistry.length);
 
 // ✅ Tests minimum required sections
-const sections = screen.getAllByRole('heading', { level: 2 })
-expect(sections.length).toBeGreaterThanOrEqual(4)
-```
-
-## 7. User Journey Testing
-
-Test user interactions and navigation:
-
-```typescript
-// ✅ Tests navigation functionality
-const tagLinks = screen.getAllByRole('link', { name: /tags/i })
-expect(tagLinks.length).toBeGreaterThanOrEqual(1)
-
-// ✅ Tests interactive elements
-const interactiveElements = [
-  ...screen.getAllByRole('button'),
-  ...screen.getAllByRole('link')
-]
-expect(interactiveElements.length).toBeGreaterThan(5)
-```
-
-## 8. Test Utilities for Reusability
-
-Create helper functions for common patterns:
-
-```typescript
-// Flexible text matcher
-export function createFlexibleTextMatcher(keywords: string[]) {
-  return new RegExp(keywords.join('.*'), 'i');
-}
-
-// Data consistency testing
-export function testDataConsistency<T>(
-  screen: any,
-  data: T[],
-  extractor: (item: T) => { text: string; role?: string }
-) {
-  data.forEach(item => {
-    const { text, role = 'text' } = extractor(item);
-    expect(screen.getByText(new RegExp(text, 'i'))).toBeInTheDocument();
-  });
-}
-```
-
-## 9. Test IDs for Critical Elements
-
-For elements that frequently change copy but need reliable testing:
-
-```typescript
-// In component
-<button data-testid="cta-primary">
-  {dynamicButtonText}
-</button>
-
-// In test
-expect(screen.getByTestId('cta-primary')).toBeInTheDocument()
-```
-
-## 10. Configuration-Based Testing
-
-Create test configurations that mirror your content structure:
-
-```typescript
-const expectedSections = [
-  { type: 'hero', minHeadings: 1 },
-  { type: 'articles', minItems: 1 },
-  { type: 'features', minItems: 4 },
-  { type: 'cta', minButtons: 2 }
-];
-
-expectedSections.forEach(section => {
-  // Test each section exists with expected content
-});
+const sections = screen.getAllByRole('heading', { level: 2 });
+expect(sections.length).toBeGreaterThanOrEqual(4);
 ```
 
 ## Benefits
 
-1. **Resilient to Copy Changes**: Tests won't break when you update text
-2. **Faster Development**: Less test maintenance when iterating on copy
-3. **Better Coverage**: Tests focus on functionality and structure
-4. **Accessibility Focus**: Using semantic roles improves accessibility
-5. **Data Consistency**: Ensures UI matches your data sources
+*   **Resilience**: Tests are less prone to breaking from minor UI changes.
+*   **Maintainability**: Reduced effort in updating tests when content or styling evolves.
+*   **User-Centric**: Focuses on the actual user experience and functionality.
+*   **Accessibility**: Encourages the use of semantic HTML and ARIA roles.
 
 ## When to Use Exact Text
 
-Still use exact text matching for:
-- Error messages (need to be precise)
-- Critical user prompts
-- Legal/compliance text
-- Brand names and specific terminology
+Exact text matching is appropriate for:
 
-## Example Migration
-
-```typescript
-// Before: Brittle test
-it('renders welcome message', () => {
-  expect(screen.getByText('Welcome to Interactive Learning Platform')).toBeInTheDocument()
-})
-
-// After: Flexible test
-it('renders hero section', () => {
-  const heroSection = screen.getByRole('heading', { level: 1 })
-  expect(heroSection).toBeInTheDocument()
-  expect(heroSection.textContent).toMatch(/interactive.*learning/i)
-})
-```
-
-This approach makes your tests more maintainable while still ensuring your UI works correctly.
+*   Error messages
+*   Critical user prompts (e.g., confirmation dialogs)
+*   Legal or compliance text
+*   Brand names and specific terminology
