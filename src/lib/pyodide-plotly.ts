@@ -2,81 +2,13 @@
 'use client';
 
 import React from 'react';
-
-export interface PyodideInstance {
-  runPython(code: string): unknown;
-  runPythonAsync?(code: string): Promise<unknown>;
-  loadPackage(packages: string[]): Promise<void>;
-}
+import { loadPyodide, executePythonCode } from './pyodide';
 
 export interface PlotlyExecutionResult {
   success: boolean;
   output: string;
   plotData?: unknown;
   error?: string;
-}
-
-let pyodideInstance: PyodideInstance | null = null;
-let isLoading = false;
-
-/**
- * Loads Pyodide with common packages (numpy, scipy, micropip) and installs Plotly
- */
-export async function loadPyodideWithPlotly(): Promise<PyodideInstance> {
-  if (typeof window === 'undefined') {
-    throw new Error('Pyodide can only be loaded in the browser');
-  }
-
-  if (pyodideInstance) {
-    return pyodideInstance;
-  }
-
-  if (isLoading) {
-    // Wait for the current loading to complete
-    while (isLoading) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    return pyodideInstance!;
-  }
-
-  isLoading = true;
-
-  try {
-    const windowWithPyodide = window as Window & { 
-      loadPyodide?: (config: Record<string, unknown>) => Promise<PyodideInstance> 
-    };
-
-    // Load Pyodide script if not already loaded
-    if (!windowWithPyodide.loadPyodide) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js';
-      script.async = true;
-      
-      await new Promise((resolve, reject) => {
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    }
-
-    // Initialize Pyodide
-    pyodideInstance = await windowWithPyodide.loadPyodide!({
-      indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/'
-    });
-
-    // Load common packages
-    await pyodideInstance.loadPackage(['numpy', 'scipy', 'micropip']);
-
-    // Install Plotly via micropip
-    await pyodideInstance.runPythonAsync!(`
-      import micropip
-      await micropip.install('plotly')
-    `);
-
-    return pyodideInstance;
-  } finally {
-    isLoading = false;
-  }
 }
 
 /**
@@ -94,6 +26,67 @@ export async function loadPlotlyJS(): Promise<void> {
   await new Promise((resolve) => {
     script.onload = resolve;
   });
+}
+
+/**
+ * Detects if the current theme is dark mode
+ */
+function isDarkMode(): boolean {
+  // Check for dark mode using various methods
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return true;
+  }
+  
+  // Check if dark class is on html or body
+  if (document.documentElement.classList.contains('dark') || 
+      document.body.classList.contains('dark')) {
+    return true;
+  }
+  
+  // Check computed background color of body
+  const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+  if (bodyBg && bodyBg !== 'rgba(0, 0, 0, 0)') {
+    // Convert to RGB and check if dark
+    const rgbMatch = bodyBg.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (rgbMatch) {
+      const [, r, g, b] = rgbMatch.map(Number);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      return brightness < 128;
+    }
+  }
+  
+  return false;
+}
+
+/**
+ * Gets dark mode theme configuration for Plotly
+ */
+function getDarkModeLayout() {
+  return {
+    paper_bgcolor: 'rgba(0,0,0,0)',  // Transparent background
+    plot_bgcolor: 'rgba(0,0,0,0)',   // Transparent plot area
+    font: { color: '#e5e7eb' },      // Light gray text
+    xaxis: {
+      gridcolor: '#374151',          // Dark gray grid
+      linecolor: '#6b7280',          // Medium gray axis lines
+      tickcolor: '#6b7280',          // Medium gray ticks
+      zerolinecolor: '#6b7280',      // Medium gray zero line
+      title: { font: { color: '#e5e7eb' } }
+    },
+    yaxis: {
+      gridcolor: '#374151',          // Dark gray grid
+      linecolor: '#6b7280',          // Medium gray axis lines
+      tickcolor: '#6b7280',          // Medium gray ticks
+      zerolinecolor: '#6b7280',      // Medium gray zero line
+      title: { font: { color: '#e5e7eb' } }
+    },
+    title: { font: { color: '#f9fafb' } }, // Nearly white title
+    legend: {
+      bgcolor: 'rgba(0,0,0,0)',      // Transparent legend background
+      bordercolor: '#6b7280',        // Medium gray border
+      font: { color: '#e5e7eb' }     // Light gray text
+    }
+  };
 }
 
 /**
@@ -120,16 +113,41 @@ export async function renderPlotlyPlot(
   
   const parsedData = typeof plotData === 'string' ? JSON.parse(plotData) : plotData;
   
+  // Apply dark mode theme if detected
+  const darkMode = isDarkMode();
+  let layout = parsedData.layout || {};
+  
+  if (darkMode) {
+    layout = {
+      ...layout,
+      ...getDarkModeLayout(),
+      // Preserve any existing layout settings but override theme
+      title: layout.title ? {
+        ...layout.title,
+        font: { ...layout.title.font, color: '#f9fafb' }
+      } : layout.title
+    };
+  }
+  
+  // Ensure proper sizing for plots
+  layout = {
+    ...layout,
+    autosize: true,
+    margin: { l: 50, r: 20, t: 40, b: 40 }
+  };
+  
   const defaultOptions = {
     responsive: true,
     displayModeBar: true,
     modeBarButtonsToRemove: ['pan2d', 'lasso2d'],
+    useResizeHandler: true,
+    style: { width: '100%', height: '100%' }
   };
 
   await Plotly.newPlot(
     plotContainer, 
     parsedData.data, 
-    parsedData.layout, 
+    layout, 
     { ...defaultOptions, ...options }
   );
 }
@@ -143,42 +161,33 @@ export async function executePythonWithPlotly(
 ): Promise<PlotlyExecutionResult> {
   try {
     onProgress?.('Loading Pyodide...');
-    const pyodide = await loadPyodideWithPlotly();
-
-    onProgress?.('Running Python code...');
     
-    // Set up stdout capture
-    await pyodide.runPython(`
-      import sys
-      from io import StringIO
-      old_stdout = sys.stdout
-      sys.stdout = captured_output = StringIO()
-      fig_json = None
-    `);
-
-    // Execute user code
-    await pyodide.runPython(code);
+    // Use the secure executePythonCode function
+    const result = await executePythonCode(code);
     
-    // Get output
-    const output = await pyodide.runPython(`
-      output_str = captured_output.getvalue()
-      sys.stdout = old_stdout
-      output_str
-    `);
+    if (result.success) {
+      onProgress?.('Extracting plot data...');
+      
+      // Try to extract plot data if available
+      const pyodide = await loadPyodide();
+      const plotJson = await pyodide.runPython(`
+        import json
+        fig_dict = fig.to_dict() if 'fig' in locals() else None
+        json.dumps(fig_dict) if fig_dict else None
+      `);
 
-    // Get plot data if available
-    const plotJson = await pyodide.runPython(`
-      import json
-      fig_dict = fig.to_dict() if 'fig' in locals() else None
-      json.dumps(fig_dict) if fig_dict else None
-    `);
-
-    return {
-      success: true,
-      output: String(output || ''),
-      plotData: plotJson || undefined
-    };
-
+      return {
+        success: true,
+        output: result.output || '',
+        plotData: plotJson || undefined
+      };
+    } else {
+      return {
+        success: false,
+        output: '',
+        error: result.error
+      };
+    }
   } catch (error) {
     return {
       success: false,
@@ -229,4 +238,4 @@ export function usePlotlyExecution() {
     error,
     executeCode
   };
-} 
+}

@@ -1,6 +1,11 @@
+import { ExecutionResult } from '@/types';
+import { PYODIDE_CONFIG } from '@/constants';
+import { validatePythonCode, sanitizeCode, CodeValidationError } from '@/utils/validation';
+
 // Define minimal types to avoid importing the full package
 interface PyodideInterface {
   runPython(code: string): unknown;
+  runPythonAsync?(code: string): Promise<unknown>;
   loadPackage(packages: string[]): Promise<void>;
   globals: Record<string, unknown>;
 }
@@ -12,7 +17,7 @@ declare global {
 }
 
 let pyodideInstance: PyodideInterface | null = null;
-let isLoading = false;
+let loadingPromise: Promise<PyodideInterface> | null = null;
 
 export async function loadPyodide(): Promise<PyodideInterface> {
   // Ensure we're running in the browser
@@ -24,90 +29,78 @@ export async function loadPyodide(): Promise<PyodideInterface> {
     return pyodideInstance;
   }
 
-  if (isLoading) {
-    // Wait for the current loading to complete
-    while (isLoading) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    return pyodideInstance!;
+  if (loadingPromise) {
+    // Return the existing loading promise
+    return loadingPromise;
   }
 
-  isLoading = true;
-
-  try {
-    // Load Pyodide from CDN if not already loaded
-    if (!window.loadPyodide) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js';
-      script.async = true;
+  // Create the loading promise
+  loadingPromise = (async () => {
+    try {
+      // Load Pyodide from CDN if not already loaded
+      if (!window.loadPyodide) {
+        const script = document.createElement('script');
+        script.src = PYODIDE_CONFIG.CDN_URL;
+        script.async = true;
+        script.crossOrigin = 'anonymous';
+        // TODO: Add SRI hash for security
+        // script.integrity = 'sha384-[hash]';
+        
+        await new Promise<void>((resolve, reject) => {
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error('Failed to load Pyodide script'));
+          document.head.appendChild(script);
+        });
+      }
       
-      await new Promise((resolve, reject) => {
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
+      pyodideInstance = await window.loadPyodide!({
+        indexURL: `https://cdn.jsdelivr.net/pyodide/${PYODIDE_CONFIG.VERSION}/full/`
       });
+
+      // Install additional packages
+      await pyodideInstance.loadPackage(PYODIDE_CONFIG.PACKAGES);
+      
+      // Install plotly via micropip
+      await pyodideInstance.runPython(`
+        import micropip
+      `);
+      
+      // Use runPythonAsync for the await call
+      if (pyodideInstance.runPythonAsync) {
+        await pyodideInstance.runPythonAsync(`
+          await micropip.install('plotly')
+        `);
+      } else {
+        // Fallback for older Pyodide versions
+        await pyodideInstance.runPython(`
+          import asyncio
+          asyncio.run(micropip.install('plotly'))
+        `);
+      }
+      
+      console.log('Plotly installed successfully');
+
+      console.log('Pyodide loaded successfully');
+      return pyodideInstance;
+    } catch (error) {
+      console.error('Failed to load Pyodide:', error);
+      pyodideInstance = null;
+      loadingPromise = null;
+      throw error;
     }
-    
-    pyodideInstance = await window.loadPyodide!({
-      indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/'
-    });
+  })();
 
-    // Install additional packages
-    await pyodideInstance.loadPackage(['numpy', 'matplotlib', 'pandas', 'scipy']);
-
-    // Set up matplotlib backend for web
-    await pyodideInstance.runPython(`
-      import matplotlib
-      matplotlib.use('Agg')  # Use non-interactive backend
-      import matplotlib.pyplot as plt
-      import numpy as np
-      import pandas as pd
-      
-      # Helper function to capture plot output
-      import io
-      import base64
-      
-      # Global variable to store plots
-      _plots = []
-      
-      def capture_plot():
-          buf = io.BytesIO()
-          plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
-          buf.seek(0)
-          img_b64 = base64.b64encode(buf.read()).decode('utf-8')
-          buf.close()
-          plt.close()  # Clear the current figure
-          return img_b64
-      
-      # Override plt.show to capture plots
-      original_show = plt.show
-      def custom_show(*args, **kwargs):
-          plot_data = capture_plot()
-          _plots.append(plot_data)
-          return None
-      plt.show = custom_show
-    `);
-
-    console.log('Pyodide loaded successfully');
-    return pyodideInstance;
-  } catch (error) {
-    console.error('Failed to load Pyodide:', error);
-    throw error;
-  } finally {
-    isLoading = false;
-  }
+  return loadingPromise;
 }
 
-export interface ExecutionResult {
-  success: boolean;
-  output?: string;
-  error?: string;
-  plots?: string[]; // base64 encoded images
-}
 
 export async function executePythonCode(code: string): Promise<ExecutionResult> {
   console.log('Executing Python code:', code);
   try {
+    // Validate and sanitize input
+    validatePythonCode(code);
+    const sanitizedCode = sanitizeCode(code);
+    
     console.log('Loading Pyodide...');
     const pyodide = await loadPyodide();
     console.log('Pyodide loaded, executing code...');
@@ -125,9 +118,14 @@ export async function executePythonCode(code: string): Promise<ExecutionResult> 
       _plots = []
     `);
 
-    // Execute user code
+    // Execute user code with timeout
     try {
-      const result = await pyodide.runPython(code);
+      const result = await Promise.race([
+        pyodide.runPython(sanitizedCode),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Code execution timeout')), PYODIDE_CONFIG.EXECUTION_TIMEOUT)
+        )
+      ]);
       
       // Get captured output and plots
       const output = await pyodide.runPython(`
@@ -156,6 +154,12 @@ export async function executePythonCode(code: string): Promise<ExecutionResult> 
       };
     }
   } catch (error) {
+    if (error instanceof CodeValidationError) {
+      return {
+        success: false,
+        error: `Security validation failed: ${error.message}`
+      };
+    }
     return {
       success: false,
       error: `Failed to execute Python code: ${String(error)}`
