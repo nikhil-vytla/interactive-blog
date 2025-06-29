@@ -1,16 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { InlineMath, DisplayMath } from '@/components/MathRenderer';
-import ReadOnlyCodeEditor from '@/components/ReadOnlyCodeEditor';
+import PlotlyCodeEditor from '@/components/PlotlyCodeEditor';
 import Link from 'next/link';
-
-// Local type for Pyodide
-interface PyodideInstance {
-  runPython(code: string): unknown;
-  runPythonAsync?(code: string): Promise<unknown>;
-  loadPackage(packages: string[]): Promise<void>;
-}
 
 export default function PValuesPost() {
   const [sampleSize, setSampleSize] = useState(30);
@@ -23,9 +16,7 @@ export default function PValuesPost() {
     significant: boolean;
     sampleMean: number;
   } | null>(null);
-  const [pythonResult, setPythonResult] = useState<string>('');
-  const [pythonLoading, setPythonLoading] = useState(false);
-  const plotRef = useRef<HTMLDivElement>(null);
+
 
   const runSimulation = () => {
     // Generate sample data from normal distribution
@@ -165,102 +156,7 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
     }];
   };
 
-  const handlePythonRun = async (code: string) => {
-    setPythonLoading(true);
-    setPythonResult('Loading Pyodide...');
-    
-    try {
-      const windowWithPyodide = window as Window & { loadPyodide?: (config: Record<string, unknown>) => Promise<PyodideInstance> };
-      if (!windowWithPyodide.loadPyodide) {
-        setPythonResult('Loading Pyodide script...');
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js';
-        script.async = true;
-        
-        await new Promise((resolve, reject) => {
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-      }
 
-      setPythonResult('Initializing Pyodide...');
-      const pyodide: PyodideInstance = await windowWithPyodide.loadPyodide!({
-        indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/'
-      });
-
-      setPythonResult('Loading Python packages...');
-      await pyodide.loadPackage(['numpy', 'scipy', 'micropip']);
-
-      setPythonResult('Installing Plotly via micropip...');
-      await pyodide.runPythonAsync!(`
-        import micropip
-        await micropip.install('plotly')
-      `);
-
-      setPythonResult('Running Python code...');
-      
-      await pyodide.runPython(`
-        import sys
-        from io import StringIO
-        old_stdout = sys.stdout
-        sys.stdout = captured_output = StringIO()
-        fig_json = None
-      `);
-
-      await pyodide.runPython(code);
-      
-      const output = await pyodide.runPython(`
-        output_str = captured_output.getvalue()
-        sys.stdout = old_stdout
-        output_str
-      `);
-
-      const plotJson = await pyodide.runPython(`
-        import json
-        fig_dict = fig.to_dict() if 'fig' in locals() else None
-        json.dumps(fig_dict) if fig_dict else None
-      `);
-
-      setPythonResult(`Success!\n\nOutput:\n${output}`);
-      
-      // Render the interactive plot
-      if (plotJson && plotRef.current) {
-        // Load Plotly dynamically
-        const script = document.createElement('script');
-        script.src = 'https://cdn.plot.ly/plotly-2.35.2.min.js';
-        
-        if (!document.querySelector('script[src*="plotly"]')) {
-          document.head.appendChild(script);
-          await new Promise((resolve) => {
-            script.onload = resolve;
-          });
-        }
-
-        const plotData = JSON.parse(plotJson as string);
-        
-        // Clear previous plot
-        plotRef.current.innerHTML = '';
-        
-        // Create new interactive plot using global Plotly
-        const windowWithPlotly = window as unknown as { Plotly?: { newPlot: (...args: unknown[]) => Promise<unknown> } };
-        const Plotly = windowWithPlotly.Plotly;
-        if (Plotly) {
-          await Plotly.newPlot(plotRef.current, plotData.data, plotData.layout, {
-            responsive: true,
-            displayModeBar: true,
-            modeBarButtonsToRemove: ['pan2d', 'lasso2d'],
-          });
-        }
-      }
-      
-    } catch (error) {
-      console.error('Error:', error);
-      setPythonResult(`Error: ${String(error)}`);
-    } finally {
-      setPythonLoading(false);
-    }
-  };
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
@@ -421,37 +317,11 @@ fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')`;
             Modify the parameters and see how they affect the p-value:
           </p>
           
-          <ReadOnlyCodeEditor
+          <PlotlyCodeEditor
             initialCode={pythonCode}
             editableRanges={getEditableRanges()}
-            onRun={handlePythonRun}
             className="mb-6"
           />
-          
-          {pythonLoading && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded">
-              <p className="text-blue-700">{pythonResult}</p>
-            </div>
-          )}
-
-          {pythonResult && !pythonLoading && (
-            <div className="p-4 bg-gray-50 border border-gray-200 rounded">
-              <h4 className="font-semibold mb-2">Output:</h4>
-              <pre className="text-sm whitespace-pre-wrap">{pythonResult}</pre>
-            </div>
-          )}
-
-          <div className="p-4 bg-white border border-gray-200 rounded">
-            <h4 className="font-semibold mb-4">Interactive Plot:</h4>
-            <div 
-              ref={plotRef} 
-              className="w-full h-96 border rounded"
-              style={{ minHeight: '500px' }}
-            />
-            <p className="text-sm text-muted mt-2">
-              💡 Try: hover over the histogram, zoom with mouse wheel, pan by dragging, use toolbar buttons
-            </p>
-          </div>
         </section>
 
         <section className="mb-12">
