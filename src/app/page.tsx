@@ -14,16 +14,32 @@ export default function Home() {
       <main className="space-y-12">
         <section>
           <h2 className="text-2xl font-semibold mb-6">Get Started</h2>
-          <div className="bg-code-bg border border-code-border rounded-lg p-6">
-            <p className="mb-4 text-muted">
-              Ready to explore interactive mathematical concepts?
-            </p>
-            <Link 
-              href="/demo" 
-              className="inline-block px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium"
-            >
-              Try Interactive Demos →
-            </Link>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-code-bg border border-code-border rounded-lg p-6">
+              <h3 className="font-semibold mb-2">Interactive Demos</h3>
+              <p className="mb-4 text-muted">
+                Explore mathematical concepts through interactive code and visualizations.
+              </p>
+              <Link 
+                href="/demo" 
+                className="inline-block px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium"
+              >
+                Try Interactive Demos →
+              </Link>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h3 className="font-semibold mb-2">Blog Posts</h3>
+              <p className="mb-4 text-muted">
+                Read in-depth explanations with interactive examples and simulations.
+              </p>
+              <Link 
+                href="/blog/p-values" 
+                className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Understanding P-Values →
+              </Link>
+            </div>
           </div>
         </section>
 
