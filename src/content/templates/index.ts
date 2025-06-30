@@ -526,7 +526,119 @@ print(f"Sample means average: {sample_means.mean():.3f}")
 print(f"Population std: {pop_sample.std():.3f}")
 print(f"Sample means std: {sample_means.std():.3f}")
 print(f"Theoretical SEM: {pop_sample.std()/np.sqrt(n_samples):.3f}")`
-  }
+  },
+  {
+    id: 'pca_visualization',
+    name: 'Principal Component Analysis Visualization',
+    description: 'Visualize PCA on a 2D dataset, showing principal components and explained variance.',
+    category: 'ml',
+    libraries: ['numpy', 'pandas', 'sklearn', 'plotly'],
+    parameters: [
+      {
+        name: 'n_samples',
+        label: 'Number of Samples',
+        type: 'range',
+        defaultValue: 100,
+        min: 50,
+        max: 300,
+        step: 10,
+        description: 'Number of data points to generate'
+      },
+      {
+        name: 'n_features',
+        label: 'Number of Features',
+        type: 'range',
+        defaultValue: 2,
+        min: 2,
+        max: 5,
+        step: 1,
+        description: 'Number of features in the dataset'
+      },
+      {
+        name: 'noise',
+        label: 'Noise Level',
+        type: 'range',
+        defaultValue: 0.1,
+        min: 0,
+        max: 1,
+        step: 0.05,
+        description: 'Amount of random noise added to the data'
+      }
+    ],
+    code: `
+import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
+from sklearn.decomposition import PCA
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
+
+# Load Iris dataset
+iris = load_iris()
+df = pd.DataFrame(iris.data, columns=iris.feature_names)
+df['species'] = iris.target_names[iris.target]
+
+features = iris.feature_names
+X = df[features]
+
+# Standardize the data
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Perform PCA
+pca = PCA(n_components=2)
+components = pca.fit_transform(X_scaled)
+
+# Create a DataFrame for components for easier plotting with Plotly Express
+components_df = pd.DataFrame(components, columns=['PC1', 'PC2'])
+components_df['species'] = df['species']
+
+# Calculate loadings
+loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
+
+# Create scatter plot with Plotly Express
+fig = px.scatter(components_df, x='PC1', y='PC2', color='species',
+                 title='PCA Biplot of Iris Dataset',
+                 labels={'PC1': f'Principal Component 1 ({pca.explained_variance_ratio_[0]*100:.1f}%)',
+                         'PC2': f'Principal Component 2 ({pca.explained_variance_ratio_[1]*100:.1f}%)'})
+
+# Add loadings as annotations
+for i, feature in enumerate(features):
+    fig.add_annotation(
+        ax=0, ay=0,
+        axref="x", ayref="y",
+        x=loadings[i, 0],
+        y=loadings[i, 1],
+        showarrow=True,
+        arrowsize=2,
+        arrowhead=2,
+        xanchor="right",
+        yanchor="top",
+        font=dict(color="#000000", size=10)
+    )
+    fig.add_annotation(
+        x=loadings[i, 0],
+        y=loadings[i, 1],
+        ax=0, ay=0,
+        xanchor="center",
+        yanchor="bottom",
+        text=feature,
+        yshift=5,
+        font=dict(color="#000000", size=10)
+    )
+
+# Adjust layout for biplot
+fig.update_layout(
+    hovermode='closest',
+    xaxis=dict(showgrid=True, zeroline=True, showline=True, linewidth=1, linecolor='black', mirror=True),
+    yaxis=dict(showgrid=True, zeroline=True, showline=True, linewidth=1, linecolor='black', mirror=True),
+    height=600
+)
+
+print(f"Explained variance ratio: {pca.explained_variance_ratio_}")
+print(f"Principal components: {pca.components_}")
+`}
 ];
 
 // Helper functions

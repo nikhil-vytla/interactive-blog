@@ -4,11 +4,13 @@ import { getArticleReadingTime } from '@/utils/readingTime';
 // Import all articles
 import { pValuesConfig } from './articles/statistics/p-values';
 import { kNearestNeighborsConfig } from './articles/machine-learning/k-nearest-neighbors';
+import { pcaConfig } from './articles/machine-learning/pca';
 
 // Article registry
 export const articleRegistry: ArticleConfig[] = [
   pValuesConfig,
   kNearestNeighborsConfig,
+  pcaConfig,
 ];
 
 // Content organization helpers
