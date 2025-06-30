@@ -52,6 +52,12 @@ const nextConfig: NextConfig = {
     ];
   },
   webpack: (config, { isServer }) => {
+    // Add a rule to handle .py files as raw assets
+    config.module.rules.push({
+      test: /\.py$/,
+      type: 'asset/source',
+    });
+
     if (!isServer) {
       // Configure webpack for client-side builds
       config.resolve.fallback = {
