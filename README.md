@@ -95,10 +95,12 @@ npm test         # Run tests
         - [Diffusion Explainer](https://github.com/poloclub/diffusion-explainer)
         - [CNN Explainer](https://github.com/poloclub/cnn-explainer)
         - [GAN Lab](https://github.com/poloclub/ganlab)
+- [Latent Scope](https://enjalot.github.io/latent-scope/) ⭐️
+    - GitHub Repo: [enjalot/latent-scope](https://github.com/enjalot/latent-scope)
 
 
 ### Blogs
-- [Lil'Log](https://lilianweng.github.io/) by Lilian Weng
+- [Lil'Log](https://lilianweng.github.io/) by Lilian Weng ⭐️
 - [Distill.pub](https://distill.pub) ⭐️
     - [Feature Visualization](https://distill.pub/2017/feature-visualization/) (2017)
     - [The Building Blocks of Interpretability](https://distill.pub/2018/building-blocks/) (2018)
@@ -115,6 +117,15 @@ npm test         # Run tests
     - [Concrete Steps to Getting Started in Transformer Mechanistic Interpretability](https://www.neelnanda.io/mechanistic-interpretability/getting-started) (2022)
 - [Transluce Research](https://transluce.org/research) ⭐️
     - [Surfacing Pathological Behaviors in Language Models](https://transluce.org/pathological-behaviors) (2025)
+- [Explorable Explanations](https://worrydream.com/ExplorableExplanations/) by Bret Victor
+- [Explorable Explanations](https://explorabl.es/) Demos ⭐️
+    - [Tools](https://explorabl.es/tools/)
+    - [Tutorials](https://explorabl.es/tutorials/)
+- [Explained Visually](https://setosa.io/ev/) ⭐️
+    - [PCA](https://setosa.io/ev/principal-component-analysis/) (2015)
+    - [Markov Chains](https://setosa.io/ev/markov-chains/) (2014)
+- [Oscar Bonilla's Blog](https://oscarbonilla.com/)
+    - [Visualizing Bayes Theorem](https://oscarbonilla.com/2009/05/visualizing-bayes-theorem/) (2009)
 
 
 ### Books
