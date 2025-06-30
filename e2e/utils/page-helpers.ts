@@ -235,7 +235,7 @@ export class PageHelpers {
 
 export class HomePage extends PageHelpers {
   async verifyHomepageLoaded() {
-    await this.navigateAndVerify('/', /interactive blog/i);
+    await this.navigateAndVerify('/', /Nik's Blog \(v2025\)/i);
     await this.testPageStructure();
   }
 
