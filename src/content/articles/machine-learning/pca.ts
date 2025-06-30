@@ -3,7 +3,7 @@ import { ArticleConfig } from '@/types';
 export const pcaConfig: ArticleConfig = {
   id: 'principal-component-analysis',
   title: 'Understanding Principal Component Analysis (PCA)',
-  description: 'Explore how PCA reduces dimensionality while preserving variance, with interactive visualizations and examples.',
+  description: '🐧 "Kowalski, analysis!"',
   category: 'Dimensionality Reduction',
   slug: 'principal-component-analysis',
   publishedAt: '2025-06-29',
