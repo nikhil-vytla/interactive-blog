@@ -67,6 +67,10 @@ npm test         # Run tests
     - Drug Discovery
     - Disease Prediction
 
+## TODOs
+
+- Considering integrating some version of WASM Dash / Plotly.js instead of Pyodide
+- Add Jupyter notebooks/Colab notebooks for more reproducible demos
 
 ## Inspo
 

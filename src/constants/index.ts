@@ -5,7 +5,7 @@
 export const PYODIDE_CONFIG = {
   CDN_URL: 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js',
   VERSION: 'v0.27.7',
-  PACKAGES: ['numpy', 'scipy', 'scikit-learn', 'micropip'] as string[],
+  PACKAGES: ['numpy', 'pandas', 'scipy', 'scikit-learn', 'micropip'] as string[],
   MAX_CODE_LENGTH: 10000,
   EXECUTION_TIMEOUT: 30000, // 30 seconds
 } as const;
